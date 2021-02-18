@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3333;
 const app = express();
 
 app.use(cors()); //Middleware
+app.use(errorHandler);
 
 // Start the Server
 app.listen(PORT, () => console.log(`we are on ${PORT}`));
@@ -20,6 +21,10 @@ app.listen(PORT, () => console.log(`we are on ${PORT}`));
 
 app.get('/', (request,response) => {
   response.send('Welcome to the Home Page!');
+});
+
+app.get('/bad', (request, response) => {
+  throw new Error('Yikes, that is not good!');
 });
 
 // Functions
@@ -36,4 +41,11 @@ function Weather(search_query, formatted_query, city_name, lat, lon) {
     this.city_name = city_name
     this.lat = lat;
     this.lon = lon;
+}
+
+function errorHandler(error, request, response, next) {
+  response.json({
+    error: true,
+    message: error.message,
+  });
 }
