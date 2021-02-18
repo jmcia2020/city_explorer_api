@@ -4,10 +4,13 @@ require('dotenv').config();
 
 //Application Dependencies
 const express = require('express');
+const cors = require('cors');
 
 // Application Setup
 const PORT = process.env.PORT || 3333;
 const app = express();
+
+app.use(cors()); //Middleware
 
 // Start the Server
 app.listen(PORT, () => console.log(`we are on ${PORT}`));
