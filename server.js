@@ -27,6 +27,10 @@ app.get('/location', (request, response) => {
   response.send(new Location('Atlanta', 'Atlanta, GA, USA', '17.3', '-120'));
 });
 
+app.get('/weather', (request, response) => {
+  response.send('Weather');
+});
+
 app.get('/bad', (request, response) => {
   throw new Error('Yikes, that is not good!');
 });
@@ -39,12 +43,9 @@ function Location(search_query, formatted_query, lat, lon) {
   this.longitude = lon;
 }
 
-function Weather(search_query, formatted_query, city_name, lat, lon) {
-    this.search_query = search_query;
-    this.formatted_query = formatted_query;
-    this.city_name = city_name
-    this.lat = lat;
-    this.lon = lon;
+function Weather(weatherData){
+  this.forecast = weatherData.weather.description;
+  this.time = weatherData.valid_date;
 }
 
 function errorHandler(error, request, response, next) {
