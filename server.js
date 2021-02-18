@@ -1,5 +1,11 @@
+'use strict';
+
+require('dotenv').config();
+
+//Application Dependencies
 const express = require('express');
 
+// Application Setup
 const PORT = process.env.PORT || 3333;
 const app = express();
 
