@@ -23,16 +23,20 @@ app.get('/', (request,response) => {
   response.send('Welcome to the Home Page!');
 });
 
+app.get('/location', (request, response) => {
+  response.send(new Location('Atlanta', 'Atlanta, GA, USA', '17.3', '-120'));
+});
+
 app.get('/bad', (request, response) => {
   throw new Error('Yikes, that is not good!');
 });
 
 // Functions
 function Location(search_query, formatted_query, lat, lon) {
-    this.search_query = search_query;
-    this.formatted_query = formatted_query;
-    this.lat = lat;
-    this.lon = lon;
+  this.search_query = search_query;
+  this.formatted_query = formatted_query;
+  this.latitude = lat;
+  this.longitude = lon;
 }
 
 function Weather(search_query, formatted_query, city_name, lat, lon) {
