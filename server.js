@@ -11,46 +11,74 @@ const PORT = process.env.PORT || 3333;
 const app = express();
 
 app.use(cors()); //Middleware
-app.use(errorHandler);
+
 
 // Start the Server
 app.listen(PORT, () => console.log(`we are on ${PORT}`));
 // This is the server being built. Now we need the routes.
 
+
 // Routes
 
-app.get('/', (request,response) => {
+app.get('/', (request, response) => {
   response.send('Welcome to the Home Page!');
 });
 
-app.get('/location', (request, response) => {
-  response.send(new Location('Atlanta', 'Atlanta, GA, USA', '17.3', '-120'));
-});
+app.get('/location', locationHandler);
 
-app.get('/weather', (request, response) => {
-  response.send('Weather');
-});
+function locationHandler(request, response) {
+  const locationData = require('./json/location.json');
+  const city = request.query.city;
+  const locationResult = new Location(city, locationData);
+  response.send(locationResult);
+  console.log(locationResult);
+}
+
+app.get('/weather', weatherHandler);
+
+function weatherHandler(request, response) {
+  const weatherData = require('./json/weather.json');
+  const forecast = [];
+  weatherData.data.map(dailyWeather => {
+    forecast.push(new Weather(dailyWeather));
+  });
+  response.send(forecast);
+  console.log(forecast);
+}
 
 app.get('/bad', (request, response) => {
   throw new Error('Yikes, that is not good!');
 });
 
+// Has to happen after the error may have occurred
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+
 // Functions
-function Location(search_query, formatted_query, lat, lon) {
-  this.search_query = search_query;
-  this.formatted_query = formatted_query;
-  this.latitude = lat;
-  this.longitude = lon;
+function Location(searchQuery, locationObject) {
+  this.search_query = searchQuery;
+  this.formatted_query = locationObject[0].formatted_query;
+  this.latitude = locationObject[0].lat;
+  this.longitude = locationObject[0].lon;
 }
 
-function Weather(weatherData){
+function Weather(weatherData) {
   this.forecast = weatherData.weather.description;
   this.time = weatherData.valid_date;
 }
 
+// Can design if change from .json to a 404 (html) page
 function errorHandler(error, request, response, next) {
-  response.json({
+  console.log(error);
+  response.status(500).json({
     error: true,
     message: error.message,
+  });
+}
+
+function notFoundHandler(request, response) {
+  response.status(404).json({
+    notFound: true,
   });
 }
