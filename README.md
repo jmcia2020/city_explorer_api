@@ -1,7 +1,7 @@
 # city_explorer_api
 # Project Name
 
-**Author**: Your Name Goes Here
+**Author**: Jean McMahon
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview

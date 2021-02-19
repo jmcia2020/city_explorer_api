@@ -20,6 +20,25 @@ app.listen(PORT, () => console.log(`we are on ${PORT}`));
 
 // Routes
 
+
+// How to use SuperAgent to make a request:
+// https://learn.vonage.com/blog/2020/09/23/5-ways-to-make-http-requests-in-node-js-2020-edition/#super-agent
+
+// const superagent = require('superagent');
+
+// (async () => {
+//   try {
+//     const queryArguments = {
+//       api_key: 'MY_KEY'
+//     }
+
+//     const response = await superagent.get('https://the-one-api.dev/v2/book').query(queryArguments)
+//     console.log(response.body.name);
+//   } catch (error) {
+//     console.log(error.response.body);
+//   }
+// })();
+
 app.get('/', (request, response) => {
   response.send('Welcome to the Home Page!');
 });
@@ -46,9 +65,9 @@ function weatherHandler(request, response) {
   console.log(forecast);
 }
 
-app.get('/bad', (request, response) => {
-  throw new Error('Yikes, that is not good!');
-});
+// app.get('/bad', (request, response) => {
+//   throw new Error('Yikes, that is not good!');
+// });
 
 // Has to happen after the error may have occurred
 app.use(notFoundHandler);
