@@ -5,11 +5,11 @@ require('dotenv').config();
 //Application Dependencies
 const express = require('express');
 const cors = require('cors');
+const superagent = require('superagent');
 
 // Application Setup
 const PORT = process.env.PORT || 3333;
 const app = express();
-
 app.use(cors()); //Middleware
 
 
@@ -20,25 +20,6 @@ app.listen(PORT, () => console.log(`we are on ${PORT}`));
 
 // Routes
 
-
-// How to use SuperAgent to make a request:
-// https://learn.vonage.com/blog/2020/09/23/5-ways-to-make-http-requests-in-node-js-2020-edition/#super-agent
-
-// const superagent = require('superagent');
-
-// (async () => {
-//   try {
-//     const queryArguments = {
-//       api_key: 'MY_KEY'
-//     }
-
-//     const response = await superagent.get('https://the-one-api.dev/v2/book').query(queryArguments)
-//     console.log(response.body.name);
-//   } catch (error) {
-//     console.log(error.response.body);
-//   }
-// })();
-
 app.get('/', (request, response) => {
   response.send('Welcome to the Home Page!');
 });
@@ -46,24 +27,56 @@ app.get('/', (request, response) => {
 app.get('/location', locationHandler);
 
 function locationHandler(request, response) {
-  const locationData = require('./json/location.json');
+  const url = 'https://us1.locationiq.com/v1/search.php';
   const city = request.query.city;
-  const locationResult = new Location(city, locationData);
-  response.send(locationResult);
-  console.log(locationResult);
+  superagent.get(url)
+    .query({
+      key: process.env.GEO_KEY,
+      q: city,
+      format: 'json'
+    })
+    .then(locationResponse => {
+      let locationData = locationResponse.body;
+      console.log(locationResponse.body);
+
+      const locationResult = new Location(city, locationData);
+      response.send(locationResult);
+    })
+    .catch(err => {
+      console.log(err);
+      errorHandler(err, request, response);
+    });
 }
 
 app.get('/weather', weatherHandler);
 
 function weatherHandler(request, response) {
-  const weatherData = require('./json/weather.json');
-  const forecast = [];
-  weatherData.data.map(dailyWeather => {
-    forecast.push(new Weather(dailyWeather));
-  });
-  response.send(forecast);
-  console.log(forecast);
+  const lat = request.query.latitude;
+  const lon = request.query.longitude;
+  // console.log(request[0].lon);
+  const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
+  superagent.get(url)
+    .query({
+      key: process.env.WEATHER_KEY,
+      lat: lat,
+      lon: lon,
+    })
+    .then(weatherResponse => {
+      let weatherData = weatherResponse.body;
+      console.log(weatherResponse.body);
+
+      const forecast = weatherData.data.map(dailyWeather => {
+        return new Weather(dailyWeather);
+      });
+      response.send(forecast);
+      console.log(forecast);
+    }).catch(err => {
+      console.log(err);
+      errorHandler(err, request, response);
+    });
 }
+
+
 
 // app.get('/bad', (request, response) => {
 //   throw new Error('Yikes, that is not good!');
