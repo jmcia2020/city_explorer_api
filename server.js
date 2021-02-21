@@ -36,7 +36,7 @@ function locationHandler(request, response) {
       format: 'json'
     })
     .then(locationResponse => {
-      let locationData=locationResponse.body;
+      let locationData = locationResponse.body;
       console.log(locationResponse.body);
 
       const locationResult = new Location(city, locationData);
@@ -51,13 +51,32 @@ function locationHandler(request, response) {
 app.get('/weather', weatherHandler);
 
 function weatherHandler(request, response) {
-  const weatherData = require('./json/weather.json');
-  const forecast = weatherData.data.map(dailyWeather => {
-    return new Weather(dailyWeather);
-  });
-  response.send(forecast);
-  console.log(forecast);
+  const lat = request.query.latitude;
+  const lon = request.query.longitude;
+  // console.log(request[0].lon);
+  const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
+  superagent.get(url)
+    .query({
+      key: process.env.WEATHER_KEY,
+      lat: lat,
+      lon: lon,
+    })
+    .then(weatherResponse => {
+      let weatherData = weatherResponse.body;
+      console.log(weatherResponse.body);
+
+      const forecast = weatherData.data.map(dailyWeather => {
+        return new Weather(dailyWeather);
+      });
+      response.send(forecast);
+      console.log(forecast);
+    }).catch(err => {
+      console.log(err);
+      errorHandler(err, request, response);
+    });
 }
+
+
 
 // app.get('/bad', (request, response) => {
 //   throw new Error('Yikes, that is not good!');
