@@ -9,7 +9,6 @@ const cors = require('cors');
 // Application Setup
 const PORT = process.env.PORT || 3333;
 const app = express();
-
 app.use(cors()); //Middleware
 
 
@@ -53,13 +52,13 @@ function locationHandler(request, response) {
   console.log(locationResult);
 }
 
+
 app.get('/weather', weatherHandler);
 
 function weatherHandler(request, response) {
   const weatherData = require('./json/weather.json');
-  const forecast = [];
-  weatherData.data.map(dailyWeather => {
-    forecast.push(new Weather(dailyWeather));
+  const forecast = weatherData.data.map(dailyWeather => {
+    return new Weather(dailyWeather);
   });
   response.send(forecast);
   console.log(forecast);
