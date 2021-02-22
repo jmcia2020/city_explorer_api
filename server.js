@@ -89,8 +89,8 @@ function parksHandler(request, response) {
   const location = request.query.search_query;
   const parksArr = [];
   // console.log(parksArr);
-  const url = '`https://developer.nps.gov/api/v1/parks?q=${location}&api_key=${parksKey}`;';
-  
+  const url = `https://developer.nps.gov/api/v1/parks?q=${location}&api_key=${parksKey}`;
+
   superagent.get(url)
     .query({
       location: location,
@@ -101,10 +101,10 @@ function parksHandler(request, response) {
       let parksData = parksResponse.body;
       console.log(parksResponse.body);
 
-      const forecast = parksData.data.map(park) => {
+      const parksResult = parksData.data.map(park => {
         return new Parks(park);
       });
-      response.send(parksArr);
+      response.send(parksResult);
       console.log(parksArr);
 
     }).catch(err => {
@@ -135,7 +135,7 @@ function Weather(weatherData) {
   this.time = weatherData.valid_date;
 }
 
-function Park(parksData) {
+function Parks(parksData) {
   this.name = parksData.fullName;
   this.address = parksData.addresses[0];
   this.fee = parksData.entranceFees.cost;
