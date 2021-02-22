@@ -20,6 +20,7 @@ app.listen(PORT, () => console.log(`we are on ${PORT}`));
 
 // Routes
 
+// LOCATION //////////
 app.get('/', (request, response) => {
   response.send('Welcome to the Home Page!');
 });
@@ -48,19 +49,23 @@ function locationHandler(request, response) {
     });
 }
 
+
+// WEATHER //////////
 app.get('/weather', weatherHandler);
 
 function weatherHandler(request, response) {
+  const weatherKey = process.env.WEATHER_KEY;
   const lat = request.query.latitude;
   const lon = request.query.longitude;
+  
   // console.log(request[0].lon);
   const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
   superagent.get(url)
-    .query({
-      key: process.env.WEATHER_KEY,
-      lat: lat,
-      lon: lon,
-    })
+    .query({key, lat, lon})
+    //   key: process.env.WEATHER_KEY,
+    //   lat: lat,
+    //   lon: lon,
+    // })
     .then(weatherResponse => {
       let weatherData = weatherResponse.body;
       console.log(weatherResponse.body);
@@ -76,7 +81,37 @@ function weatherHandler(request, response) {
     });
 }
 
+// PARKS //////////
+app.get('/parks', parksHandler);
 
+function parksHandler(request, response) {
+  const parksKey = process.env.PARKS_KEY;
+  const location = request.query.search_query;
+  const parksArr = [];
+  // console.log(parksArr);
+  const url = '`https://developer.nps.gov/api/v1/parks?q=${location}&api_key=${parksKey}`;';
+  
+  superagent.get(url)
+    .query({
+      location: location,
+      api_key: parksKey,
+      limit: 10
+    })
+    .then(parksResponse => {
+      let parksData = parksResponse.body;
+      console.log(parksResponse.body);
+
+      const forecast = parksData.data.map(park) => {
+        return new Parks(park);
+      });
+      response.send(parksArr);
+      console.log(parksArr);
+
+    }).catch(err => {
+      console.log(err);
+      errorHandler(err, request, response);
+    });
+}
 
 // app.get('/bad', (request, response) => {
 //   throw new Error('Yikes, that is not good!');
@@ -99,6 +134,15 @@ function Weather(weatherData) {
   this.forecast = weatherData.weather.description;
   this.time = weatherData.valid_date;
 }
+
+function Park(parksData) {
+  this.name = parksData.fullName;
+  this.address = parksData.addresses[0];
+  this.fee = parksData.entranceFees.cost;
+  this.description = parksData.description;
+  this.url = parksData.url;
+}
+
 
 // Can design if change from .json to a 404 (html) page
 function errorHandler(error, request, response, next) {
