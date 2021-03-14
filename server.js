@@ -6,6 +6,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
+// const client = new.pgClient(process.env.DATABASE_URL);
 
 // Application Setup
 const PORT = process.env.PORT || 3333;
@@ -57,15 +59,15 @@ function weatherHandler(request, response) {
   const weatherKey = process.env.WEATHER_KEY;
   const lat = request.query.latitude;
   const lon = request.query.longitude;
-  
+
   // console.log(request[0].lon);
   const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
   superagent.get(url)
-    .query({key, lat, lon})
-    //   key: process.env.WEATHER_KEY,
-    //   lat: lat,
-    //   lon: lon,
-    // })
+    .query({
+      key: process.env.WEATHER_KEY,
+      lat: lat,
+      lon: lon,
+    })
     .then(weatherResponse => {
       let weatherData = weatherResponse.body;
       console.log(weatherResponse.body);
